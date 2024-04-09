@@ -4,7 +4,6 @@ import type { AppState, Config } from './types';
 import { OFFLINE_SEND, OFFLINE_SCHEDULE_RETRY } from './constants';
 import { completeRetry } from './actions';
 import send from './send';
-import { isOfflineToOnlineSelector } from 'rc-mobile-base/lib/selectors/rooms';
 
 const after = (timeout = 0) =>
   new Promise(resolve => setTimeout(resolve, timeout));
@@ -36,15 +35,7 @@ export const createOfflineMiddleware = (config: Config) => (store: any) => (
     !offline.retryScheduled &&
     offline.online
   ) {
-    const isOfflineToOnline = isOfflineToOnlineSelector(state)
-    if (offlineAction.type === "OUTBOUND_ROOM_MODEL_UPDATE" && isOfflineToOnline) {
-      setTimeout(()=>{
-        send(offlineAction, store.dispatch, config, offline.retryCount);
-      }, 15000)
-    }else{
-      send(offlineAction, store.dispatch, config, offline.retryCount);
-    }
-    // send(offlineAction, store.dispatch, config, offline.retryCount);
+    send(offlineAction, store.dispatch, config, offline.retryCount);
   }
 
   if (action.type === OFFLINE_SCHEDULE_RETRY) {
